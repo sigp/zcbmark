@@ -72,7 +72,7 @@ for core_count in range (1, args.cores+1):
         # calculate mean times
         times = [result['runningtime'] for result in json_output]
         print('INFO: {1} core(s) times: {0}'.format(times, core_count))
-        average = statistics.mean(times)
+        average = statistics.mean(times) / core_count   # we divide by core count because testing with 2 cores produces twice as many hashes as testing with 1
         print('INFO: {1} core(s) mean time: {0}'.format(average, core_count))
         # store the results
         results['{0}_cores_times'.format(core_count)] = times
