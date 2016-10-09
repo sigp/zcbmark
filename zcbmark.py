@@ -4,11 +4,20 @@ import os
 import json
 import statistics
 import pprint
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 
 # How many times should the benchmarker repeat the problem
 # We are typically using 20 for this value to get a good
 # statistical variance.
 NUMBER_OF_TIMES_TO_RUN = 20
+
+# this needs to be a google service account credentials json file
+# you can find info on how to get this in the gspread docs
+GOOGLE_CREDS_JSON_FILE = 'google-creds.json'
+
+# the id of the google sheet - this can be found in the url of the sheet.
+GOOGLE_SHEET_ID_FOR_RESULTS = "1tmgYMJaxUMT-EHWheKSRgQKuQx6sqRbGP_cNT1vvdsU"
 
 #
 # Setup argparse to parse our arguments and provide typical command line utilities
@@ -77,6 +86,33 @@ def find_memory_in_lshw_dict(lshw_dict, find_class, return_key, parent_id=None):
                     return lshw_dict[return_key]
     return '|'.join(results)
 
+# push the results to gsheets    
+def push_results_to_gsheets(creds_file, sheet_id, results):
+    # not sure what this scope thing is
+    scope = ['https://spreadsheets.google.com/feeds']
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(creds_file, scope)
+
+    # authorise with google and create a gspread object
+    gc = gspread.authorize(credentials)
+
+    # Open a worksheet from the spreadsheet
+    wks = gc.open_by_key(sheet_id).sheet1
+
+    # grab the first row from the spreadsheet and assume it is the header row
+    headers = wks.row_values(1)
+
+    # create our row to be pushed to gsheets
+    new_row = [0] * len(results.keys())
+    
+    # order the results into an array matching the order of the spreadsheets headers
+    # this means the keys in results must match to a header row in the spreadsheet
+    for k, v in results.items():
+        new_row[headers.index(k)] =  v
+
+    print(new_row)
+        
+    wks.append_row(new_row)
+
 
 #
 # Start of Program Execution
@@ -119,7 +155,6 @@ results['memory_clocks'] = find_memory_in_lshw_dict(
         return_key='clock',
     )
 
-print(results)
 
 # Start at 1 and test all core counts up to the computers amount of cores
 for core_count in range (1, args.cores+1):
@@ -148,10 +183,8 @@ for core_count in range (1, args.cores+1):
         results['{0}_cores_times'.format(core_count)] = times
         results['{0}_cores_average'.format(core_count)] = average
 
+print('INFO: pushing to Google Sheets')
+push_results_to_gsheets(GOOGLE_CREDS_JSON_FILE ,GOOGLE_SHEET_ID_FOR_RESULTS,  results)
 print(results)
-
-
-
-
 
 
