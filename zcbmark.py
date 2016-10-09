@@ -108,7 +108,7 @@ def push_results_to_gsheets(creds_file, sheet_id, results):
     # this means the keys in results must match to a header row in the spreadsheet
     for k, v in results.items():
         try:
-            new_row[headers.index('k')] =  v
+            new_row[headers.index(k)] =  v
         except ValueError:
             print('WARN: spreadsheet has no header: {0}'.format(k))
 
