@@ -107,10 +107,15 @@ def push_results_to_gsheets(creds_file, sheet_id, results):
     # order the results into an array matching the order of the spreadsheets headers
     # this means the keys in results must match to a header row in the spreadsheet
     for k, v in results.items():
-        new_row[headers.index(k)] =  v
+        try:
+            new_row[headers.index('k')] =  v
+        except ValueError:
+            print('WARN: spreadsheet has no header: {0}'.format(k))
 
     wks.append_row(new_row)
     print('INFO: Uploaded to gsheets: {0}'.format(new_row))
+
+
 
 
 #
