@@ -102,7 +102,7 @@ def push_results_to_gsheets(creds_file, sheet_id, results):
     headers = wks.row_values(1)
 
     # create our row to be pushed to gsheets
-    new_row = [0] * len(headers.keys())
+    new_row = [0] * len(headers)
     
     # order the results into an array matching the order of the spreadsheets headers
     # this means the keys in results must match to a header row in the spreadsheet
