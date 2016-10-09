@@ -161,6 +161,7 @@ results['memory_clocks'] = find_memory_in_lshw_dict(
 print('INFO: hardware specs: {0}'.format(results))
 
 results['repeats'] = NUMBER_OF_TIMES_TO_RUN
+results['core_count'] = args.cores
 
 # track errors in benchmarking
 benchmarking_had_errors = False
