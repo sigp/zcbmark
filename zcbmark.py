@@ -190,7 +190,7 @@ for core_count in range (1, args.cores+1):
         print('INFO: {1} core(s) mean time: {0}'.format(average, core_count))
         # store the results
         results['{0}_cores_times'.format(core_count)] = times
-        results['{0}_cores_average'.format(core_count)] = average
+        results['{0}_cores_average_per_core'.format(core_count)] = average
 
 if not benchmarking_had_errors:
     print('INFO: pushing to Google Sheets')
