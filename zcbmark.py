@@ -162,7 +162,6 @@ print('INFO: hardware specs: {0}'.format(results))
 
 results['repeats'] = NUMBER_OF_TIMES_TO_RUN
 
-
 # track errors in benchmarking
 benchmarking_had_errors = False
 
@@ -194,9 +193,9 @@ for core_count in range (1, args.cores+1):
         results['{0}_cores_times'.format(core_count)] = times
         results['{0}_cores_average_per_core'.format(core_count)] = average
 
-if not benchmarking_had_errors:
-    print('INFO: pushing to Google Sheets')
-    push_results_to_gsheets(GOOGLE_CREDS_JSON_FILE ,GOOGLE_SHEET_ID_FOR_RESULTS,  results)
-else:
+if benchmarking_had_errors:
     print('ERROR: Benchmarking had errors. No information will be uploaded to gsheets')
+
+print('INFO: pushing to Google Sheets')
+push_results_to_gsheets(GOOGLE_CREDS_JSON_FILE ,GOOGLE_SHEET_ID_FOR_RESULTS,  results)
 
