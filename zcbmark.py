@@ -109,9 +109,8 @@ def push_results_to_gsheets(creds_file, sheet_id, results):
     for k, v in results.items():
         new_row[headers.index(k)] =  v
 
-    print(new_row)
-        
     wks.append_row(new_row)
+    print('INFO: Uploaded to gsheets: {0}'.format(new_row))
 
 
 #
@@ -154,7 +153,11 @@ results['memory_clocks'] = find_memory_in_lshw_dict(
         find_class='memory',
         return_key='clock',
     )
+print('INFO: hardware specs: {0}'.format(results))
 
+
+# track errors in benchmarking
+benchmarking_had_errors = False
 
 # Start at 1 and test all core counts up to the computers amount of cores
 for core_count in range (1, args.cores+1):
@@ -169,6 +172,7 @@ for core_count in range (1, args.cores+1):
     # check for errors from the process
     if completed_process.returncode > 0:
         print('zcbenchmark failed. Is the daemon running? (zcashd --daemon)')
+        benchmarking_had_errors = True
     else:
         # store the stdout from the zcbenchmark utility as a string
         zcbenchmark_output = completed_process.stdout.decode("utf-8")
@@ -183,8 +187,9 @@ for core_count in range (1, args.cores+1):
         results['{0}_cores_times'.format(core_count)] = times
         results['{0}_cores_average'.format(core_count)] = average
 
-print('INFO: pushing to Google Sheets')
-push_results_to_gsheets(GOOGLE_CREDS_JSON_FILE ,GOOGLE_SHEET_ID_FOR_RESULTS,  results)
-print(results)
-
+if not benchmarking_had_errors:
+    print('INFO: pushing to Google Sheets')
+    push_results_to_gsheets(GOOGLE_CREDS_JSON_FILE ,GOOGLE_SHEET_ID_FOR_RESULTS,  results)
+else:
+    print('ERROR: Benchmarking had errors. No information will be uploaded to gsheets')
 
