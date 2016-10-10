@@ -202,7 +202,7 @@ for core_count in range (1, args.cores+1):
         results['{0}_cores_average_per_core'.format(core_count)] = average
 
 if benchmarking_had_errors:
-    print('ERROR: Benchmarking had errors. No information will be uploaded to gsheets')
+    print('ERROR: Benchmarking had errors.')
 
 print('INFO: pushing to Google Sheets')
 push_results_to_gsheets(GOOGLE_CREDS_JSON_FILE ,GOOGLE_SHEET_ID_FOR_RESULTS,  results)
