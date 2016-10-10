@@ -1,6 +1,7 @@
 import subprocess
 import argparse
 import os
+import sys
 import json
 import statistics
 import pprint
@@ -49,7 +50,10 @@ parser.add_argument(
 def log(message):
     print(message)
     with open(LOG_FILE, "a") as log_file:
-        log_file.write(message)
+        log_file.write('{0}\n'.format(message))
+
+def test_internet():
+    return os.system('ping -c 1 google.com')
 
 # Creates an average time from the output of zcbenchmark
 def average_zcbenchmark_results(zcbenchmark_stdout):
@@ -144,6 +148,13 @@ zcash_cli = os.path.join(args.zcash_dir, 'src', 'zcash-cli')
 
 # initialise an empty dict to store our results
 results = dict()
+
+# test for internet
+ping_response= test_internet()
+if not ping_response == 0:
+    log('ERROR: cant ping google - exiting')
+    sys.exit()
+    
 
 lshw = get_lshw_json()
 results['product'] = lshw['product']
