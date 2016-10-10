@@ -13,10 +13,6 @@ from oauth2client.service_account import ServiceAccountCredentials
 # statistical variance.
 NUMBER_OF_TIMES_TO_RUN = 20
 
-# this needs to be a google service account credentials json file
-# you can find info on how to get this in the gspread docs
-GOOGLE_CREDS_JSON_FILE = 'google-creds.json'
-
 # the id of the google sheet - this can be found in the url of the sheet.
 GOOGLE_SHEET_ID_FOR_RESULTS = "1tmgYMJaxUMT-EHWheKSRgQKuQx6sqRbGP_cNT1vvdsU"
 
@@ -32,6 +28,12 @@ parser.add_argument(
         type=int,
         dest='cores',
         help='What is the highest cpu core count we should test with? (How many cores does the CPU have)',
+        required=True,
+)
+parser.add_argument(
+        '--gsheets-creds',
+        dest='creds',
+        help='Path to the Google Service Account json credentials file',
         required=True,
 )
 parser.add_argument(
@@ -224,5 +226,6 @@ if benchmarking_had_errors:
     log('ERROR: Benchmarking had errors.')
 
 log('INFO: pushing to Google Sheets')
-push_results_to_gsheets(GOOGLE_CREDS_JSON_FILE ,GOOGLE_SHEET_ID_FOR_RESULTS,  results)
+push_results_to_gsheets(args.creds ,GOOGLE_SHEET_ID_FOR_RESULTS,  results)
+log('INFO: finished')
 
