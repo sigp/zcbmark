@@ -19,6 +19,9 @@ GOOGLE_CREDS_JSON_FILE = 'google-creds.json'
 # the id of the google sheet - this can be found in the url of the sheet.
 GOOGLE_SHEET_ID_FOR_RESULTS = "1tmgYMJaxUMT-EHWheKSRgQKuQx6sqRbGP_cNT1vvdsU"
 
+# logging file
+LOG_FILE = os.path.join('/', 'tmp', 'zcbmark.log') 
+
 #
 # Setup argparse to parse our arguments and provide typical command line utilities
 #
@@ -43,13 +46,18 @@ parser.add_argument(
         required=True,
 )
 
+def log(message):
+    print(message)
+    with open(LOG_FILE, "a") as log_file:
+        log_file.write(message)
+
 # Creates an average time from the output of zcbenchmark
 def average_zcbenchmark_results(zcbenchmark_stdout):
     results = json.loads(zcbenchmark_stdout)
     times = [result['runningtime'] for result in results]
-    print('INFO: results {0}'.format(times))
+    log('INFO: results {0}'.format(times))
     average = statistics.mean(times)
-    print('INFO: mean {0}'.format(average))
+    log('INFO: mean {0}'.format(average))
     return()
 
 def get_lshw_json():
@@ -116,10 +124,10 @@ def push_results_to_gsheets(creds_file, sheet_id, results):
         try:
             new_row[headers.index(k)] =  v
         except ValueError:
-            print('WARN: spreadsheet has no header: {0}'.format(k))
+            log('WARN: spreadsheet has no header: {0}'.format(k))
 
     wks.append_row(new_row)
-    print('INFO: Uploaded to gsheets: {0}'.format(new_row))
+    log('INFO: Uploaded to gsheets: {0}'.format(new_row))
 
 
 
@@ -164,7 +172,7 @@ results['memory_clocks'] = find_memory_in_lshw_dict(
         find_class='memory',
         return_key='clock',
     )
-print('INFO: hardware specs: {0}'.format(results))
+log('INFO: hardware specs: {0}'.format(results))
 
 results['repeats'] = NUMBER_OF_TIMES_TO_RUN
 results['core_count'] = args.cores
@@ -175,7 +183,7 @@ benchmarking_had_errors = False
 
 # Start at 1 and test all core counts up to the computers amount of cores
 for core_count in range (1, args.cores+1):
-    print('INFO: Testing using {0} core(s) with {1} repeats.'.format(core_count, NUMBER_OF_TIMES_TO_RUN))
+    log('INFO: Testing using {0} core(s) with {1} repeats.'.format(core_count, NUMBER_OF_TIMES_TO_RUN))
 
     # execute the zcash-cli zcbenchmark
     completed_process = subprocess.run(
@@ -185,7 +193,7 @@ for core_count in range (1, args.cores+1):
 
     # check for errors from the process
     if completed_process.returncode > 0:
-        print('zcbenchmark failed. Is the daemon running? (zcashd --daemon)')
+        log('zcbenchmark failed. Is the daemon running? (zcashd --daemon)')
         benchmarking_had_errors = True
     else:
         # store the stdout from the zcbenchmark utility as a string
@@ -194,16 +202,16 @@ for core_count in range (1, args.cores+1):
         json_output = json.loads(zcbenchmark_output)
         # calculate mean times
         times = [result['runningtime'] for result in json_output]
-        print('INFO: {1} core(s) times: {0}'.format(times, core_count))
+        log('INFO: {1} core(s) times: {0}'.format(times, core_count))
         average = statistics.mean(times) / core_count   # we divide by core count because testing with 2 cores produces twice as many hashes as testing with 1
-        print('INFO: {1} core(s) mean time: {0}'.format(average, core_count))
+        log('INFO: {1} core(s) mean time: {0}'.format(average, core_count))
         # store the results
         results['{0}_cores_times'.format(core_count)] = times
         results['{0}_cores_average_per_core'.format(core_count)] = average
 
 if benchmarking_had_errors:
-    print('ERROR: Benchmarking had errors.')
+    log('ERROR: Benchmarking had errors.')
 
-print('INFO: pushing to Google Sheets')
+log('INFO: pushing to Google Sheets')
 push_results_to_gsheets(GOOGLE_CREDS_JSON_FILE ,GOOGLE_SHEET_ID_FOR_RESULTS,  results)
 
