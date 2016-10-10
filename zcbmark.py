@@ -36,6 +36,12 @@ parser.add_argument(
         help='Location of the (compiled) zcash github directory.',
         required=True,
 )
+parser.add_argument(
+        '--notes',
+        dest='notes',
+        help='Notes to be posted to gsheets. Eg, pauls macbook running arch',
+        required=True,
+)
 
 # Creates an average time from the output of zcbenchmark
 def average_zcbenchmark_results(zcbenchmark_stdout):
@@ -162,6 +168,7 @@ print('INFO: hardware specs: {0}'.format(results))
 
 results['repeats'] = NUMBER_OF_TIMES_TO_RUN
 results['core_count'] = args.cores
+results['notes'] = args.notes
 
 # track errors in benchmarking
 benchmarking_had_errors = False
