@@ -5,7 +5,7 @@ Python script for automated bench marking of zcash mining
 
 
 
-`$ python zcbmark.py --cpu-cores 4 --zcash-dir ~/development/zcash --google-creds google-creds.json`
+`$ python zcbmark.py --cpu-cores 4 --zcash-dir ~/development/zcash --gsheets-creds google-creds.json`
 
 The following command will attempt to run `zcash-cli zcbenchmark solveequihash` four times,
 using 1 core through to 4 cores.
@@ -13,7 +13,7 @@ using 1 core through to 4 cores.
 Currenly it will attempt 20 repetitions, however this easily
 modified in the source via the `NUMBER_OF_TIMES_TO_RUN` variable.
 
-The script will attempt to upload the results to a Google Sheet (ID specified in script) using the credentials `json` file specified with the `--google-creds` flag.
+The script will attempt to upload the results to a Google Sheet (see `GOOGLE_SHEET_ID_FOR_RESULTS` variable) using the credentials `json` file specified with the `--gsheets-creds` flag.
 
 `lshw` may require root priviledges to run, therefore requiring you run the script as `sudo`.
 
