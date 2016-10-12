@@ -32,6 +32,12 @@ Ensure zcashd is running. `./zcashd --daemon`
 
 Developed using Arch Linux.
 
+## Contribution
+
+This script is used internally and has not been developed to be a packaged, fool-proof software piece.
+
+If you find some bugs, create an issue or preferably submit a pull request with some fixes. We will be more than happy to have your input
+
 
 
 
