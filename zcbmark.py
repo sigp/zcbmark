@@ -48,6 +48,10 @@ parser.add_argument(
         help='Notes to be posted to gsheets. Eg, pauls macbook running arch',
         required=True,
 )
+parser.add_argument(
+        '--no-benchmark',
+        dest='benchmark',
+        action='store_false')
 
 def log(message):
     print(message)
@@ -108,6 +112,7 @@ def find_memory_in_lshw_dict(lshw_dict, find_class, return_key, parent_id=None):
 
 # push the results to gsheets    
 def push_results_to_gsheets(creds_file, sheet_id, results):
+    print('INFO: Pushing to gsheets')
     # not sure what this scope thing is
     scope = ['https://spreadsheets.google.com/feeds']
     credentials = ServiceAccountCredentials.from_json_keyfile_name(creds_file, scope)
@@ -185,11 +190,17 @@ results['memory_clocks'] = find_memory_in_lshw_dict(
         find_class='memory',
         return_key='clock',
     )
+results['core_count'] = args.cores
+results['notes'] = args.notes
+
 log('INFO: hardware specs: {0}'.format(results))
 
 results['repeats'] = NUMBER_OF_TIMES_TO_RUN
-results['core_count'] = args.cores
-results['notes'] = args.notes
+
+if args.benchmark == False:
+    log('INFO: Skipping benchmarking')
+    push_results_to_gsheets(args.creds ,GOOGLE_SHEET_ID_FOR_RESULTS,  results)
+    sys.exit()
 
 # track errors in benchmarking
 benchmarking_had_errors = False
